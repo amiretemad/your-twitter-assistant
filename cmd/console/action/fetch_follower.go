@@ -32,7 +32,7 @@ func FetchFollowers(c *cli.Context, db *gorm.DB, credential TwitterService.Crede
 	}
 
 	followerRepository := repository.FollowerRepository{DB: db}
-	searchParams := &twitter.FollowerListParams{Cursor: -1, Count: 40}
+	searchParams := &twitter.FollowerListParams{Cursor: -1, Count: 200, ScreenName: username}
 	for {
 		list, _, err := client.Followers.List(searchParams)
 
