@@ -2,30 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/dghubble/go-twitter/twitter"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/urfave/cli"
 	"log"
 	"os"
-	"strconv"
-	"tweak_twitter/pkg/model"
-	"tweak_twitter/pkg/repository"
-	TwitterService "tweak_twitter/pkg/service/twitter"
+	"tweak_twitter/cmd/console/action"
+	database "tweak_twitter/db"
+	TwitterService "tweak_twitter/pkg/lib/twitter"
 )
 
 func main() {
-
-	followerFile, err := os.Create("followers.json")
+	// Setup Database Connection
+	db, err := database.DB(fmt.Sprintf("%s.db", os.Getenv("DATABASE_NAME")))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed to connect database")
 	}
 
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(followerFile)
-
+	// Setup Twitter Credentials
 	twitterCredentials := TwitterService.Credential{
 		ConsumerKey:    os.Getenv("CONSUMER_KEY"),
 		ConsumerSecret: os.Getenv("CONSUMER_SECRET"),
@@ -33,42 +26,54 @@ func main() {
 		TokenSecret:    os.Getenv("TOKEN_SECRET"),
 	}
 
-	service := TwitterService.OAuth1Service{Credential: twitterCredentials}
-	client := service.GetClient()
+	app := cli.NewApp()
+	app.Name = "Set of commands to have more control over your twitter account!"
 
-	var userList []model.User
-	userRepository := repository.UserFileRepository{File: followerFile}
-
-	searchParams := &twitter.FollowerListParams{Cursor: -1, Count: 40}
-	for {
-		list, _, err := client.Followers.List(searchParams)
-
-		if err != nil {
-			if len(userList) > 0 {
-				userRepository.SaveList(userList)
-			}
-			log.Fatal(err)
-			return
-		}
-
-		for _, user := range list.Users {
-			u := model.User{
-				TwitterId: strconv.FormatInt(user.ID, 10),
-				Username:  user.ScreenName,
-				Name:      user.Name,
-				Location:  user.Location,
-				Following: user.Following,
-			}
-			userList = append(userList, u)
-		}
-
-		if list.NextCursor == 0 {
-			fmt.Println("End of the list!")
-			break
-		}
-
-		searchParams.Cursor = list.NextCursor
+	app.Commands = []cli.Command{
+		{
+			Name:     "fetch_followers",
+			HelpName: "fetch_followers",
+			Action: func(c *cli.Context) {
+				err := action.FetchFollowers(c, db, twitterCredentials)
+				if err != nil {
+					return
+				}
+			},
+			ArgsUsage:   ` `,
+			Usage:       `Fetch followers for provided username.`,
+			Description: `Fetch followers.`,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:     "username",
+					Usage:    "Fetch followers for this username.",
+					Required: true,
+				},
+			},
+		},
+		{
+			Name:     "compare_followers",
+			HelpName: "compare_followers",
+			Action: func(c *cli.Context) {
+				err := action.CompareFollower(c, db)
+				if err != nil {
+					return
+				}
+			},
+			ArgsUsage:   ` `,
+			Usage:       `Compare your followers with previous iterations`,
+			Description: `this command returns list of users who started to follow/unfollow you.`,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:     "username",
+					Usage:    "Fetch followers for this username.",
+					Required: true,
+				},
+			},
+		},
 	}
 
-	userRepository.SaveList(userList)
+	err = app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
