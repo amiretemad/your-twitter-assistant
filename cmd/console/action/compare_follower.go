@@ -27,7 +27,7 @@ func CompareFollower(c *cli.Context, db *gorm.DB) error {
 	}
 
 	followerRepository := repository.FollowerRepository{DB: db}
-	follows, unfollows := followerRepository.GetDiff(lastTracker)
+	follows, unfollows := followerRepository.GetDiff(username, lastTracker)
 
 	fmt.Println(fmt.Sprintf("%d users has been unfollowed %s!", len(unfollows), username))
 	fmt.Println(fmt.Sprintf("%d new users has been started to follow %s!", len(follows), username))
