@@ -1,4 +1,4 @@
-Sets of command to fetch your existence twitter followers, new and who just unfollowed you! I use this commands just to track my
+Sets of command to fetch your existing twitter followers, new and who just unfollowed you! I use this commands just to track my
 followers on Twitter and have some plans to add some more functionality to it!
 
 ## Build it!
