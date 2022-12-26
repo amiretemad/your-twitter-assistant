@@ -31,8 +31,8 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:     "fetch_followers",
-			HelpName: "fetch_followers",
+			Name:     "fetch-followers",
+			HelpName: "fetch-followers",
 			Action: func(c *cli.Context) {
 				err := action.FetchFollowers(c, db, twitterCredentials)
 				if err != nil {
@@ -51,8 +51,8 @@ func main() {
 			},
 		},
 		{
-			Name:     "compare_followers",
-			HelpName: "compare_followers",
+			Name:     "compare-followers",
+			HelpName: "compare-followers",
 			Action: func(c *cli.Context) {
 				err := action.CompareFollower(c, db)
 				if err != nil {

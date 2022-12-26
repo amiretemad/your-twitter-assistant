@@ -23,7 +23,7 @@ TOKEN_SECRET=UrXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXOy
 ## How to Execute it
 
 ```
-./main fetch_followers --username=someusername
+./main fetch-followers --username=someusername
 ```
 
 ## Available commands
@@ -32,6 +32,6 @@ You need to provider --username option in commands to fetch followers of provide
 
 ```
 COMMANDS:
-   fetch_followers    Fetch followers for provided username.
-   compare_followers  Compare your followers with previous iterations
+   fetch-followers    Fetch followers for provided username.
+   compare-followers  Compare your followers with previous iterations
 ```
